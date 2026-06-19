@@ -91,7 +91,7 @@ class LoginPage extends StatelessWidget {
               TextField(
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: "****************",
+                  hintText: "***************",
                   filled: true,
                   fillColor: const Color(0xFFD9D9D9),
                   suffixIcon: const Icon(
@@ -159,12 +159,32 @@ class LoginPage extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SocialIcon(text: "G"),
-                  SizedBox(width: 32),
-                  SocialIcon(text: "f"),
+                  InkWell(
+                    onTap: () {
+                      print("Google");
+                    },
+                    child: Image.asset(
+                      "assets/images/google.png",
+                      width: 32,
+                      height: 32,
+                    ),
+                  ),
+
+                  const SizedBox(width: 25),
+
+                  InkWell(
+                    onTap: () {
+                      print("Facebook");
+                    },
+                    child: Image.asset(
+                      "assets/images/facebook.png",
+                      width: 52,
+                      height: 52,
+                    ),
+                  )
                 ],
               ),
 
