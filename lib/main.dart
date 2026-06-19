@@ -22,17 +22,16 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD9D9D9),
-      body: Center(
-        child: Container(
-          width: 382,
-          padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 45),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(
+            left: 10,
+            right: 20,
+            top: 105,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 "Login",
@@ -48,7 +47,7 @@ class LoginPage extends StatelessWidget {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Username",
+                  "Email",
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
