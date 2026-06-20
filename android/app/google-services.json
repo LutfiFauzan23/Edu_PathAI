@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "808588462143",
+    "project_id": "edupath-ai-a35fa",
+    "storage_bucket": "edupath-ai-a35fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808588462143:android:bf265e0a8a6217f05d908a",
+        "android_client_info": {
+          "package_name": "com.example.edu_path"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808588462143-kq0iic4sncrnodm0dj59911u59nb5393.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoVD_49vfS-xDnG7T_FgnMmdkNIK6I3xY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808588462143-kq0iic4sncrnodm0dj59911u59nb5393.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 
 /// Semua warna, spasi, dan style teks dipusatkan di sini supaya
 /// tampilan tiap layar konsisten dan gampang diubah dari satu tempat.
@@ -18,31 +18,31 @@ class AppColors {
 }
 
 class AppTextStyles {
-  static TextStyle get heading => GoogleFonts.poppins(
+  static TextStyle get heading => TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       );
 
-  static TextStyle get subheading => GoogleFonts.poppins(
+  static TextStyle get subheading => TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w500,
         color: AppColors.textPrimary,
       );
 
-  static TextStyle get body => GoogleFonts.poppins(
+  static TextStyle get body => TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w400,
         color: AppColors.textSecondary,
       );
 
-  static TextStyle get caption => GoogleFonts.poppins(
+  static TextStyle get caption => TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w400,
         color: AppColors.textSecondary,
       );
 
-  static TextStyle get button => GoogleFonts.poppins(
+  static TextStyle get button => TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: Colors.white,
@@ -58,7 +58,6 @@ ThemeData buildAppTheme() {
       seedColor: AppColors.primary,
       primary: AppColors.primary,
     ),
-    textTheme: GoogleFonts.poppinsTextTheme(),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.background,
       elevation: 0,
