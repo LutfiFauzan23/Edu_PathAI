@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_top_bar.dart';
 import '../data/dummy_data.dart';
@@ -28,6 +29,10 @@ class ProgressScreen extends StatelessWidget {
           _sectionHeader('Produktivitas hari ini', 'Lihat semua'),
           const SizedBox(height: 10),
           _produktivitasGrid(),
+          const SizedBox(height: 20),
+          _sectionHeader('Aktivitas Belajar 7 Hari Terakhir', ''),
+          const SizedBox(height: 10),
+          _weeklyActivityChart(),
           const SizedBox(height: 20),
           _sectionHeader('Rekomendasi Untukmu', 'Lihat semua'),
           const SizedBox(height: 10),
@@ -98,7 +103,8 @@ class ProgressScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: AppTextStyles.subheading),
-        Text('$action >', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+        if (action.isNotEmpty)
+          Text('$action >', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
       ],
     );
   }
@@ -184,6 +190,59 @@ class ProgressScreen extends StatelessWidget {
             ),
           )
           .toList(),
+    );
+  }
+
+  Widget _weeklyActivityChart() {
+    const days = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
+    const hours = [2.0, 1.5, 3.0, 2.5, 1.0, 4.0, 2.0];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      height: 180,
+      child: BarChart(
+        BarChartData(
+          maxY: 5,
+          gridData: const FlGridData(show: false),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= days.length) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(days[index], style: AppTextStyles.caption.copyWith(fontSize: 10)),
+                  );
+                },
+              ),
+            ),
+          ),
+          barGroups: List.generate(hours.length, (i) {
+            return BarChartGroupData(
+              x: i,
+              barRods: [
+                BarChartRodData(
+                  toY: hours[i],
+                  color: AppColors.primary,
+                  width: 16,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
     );
   }
 

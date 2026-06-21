@@ -4,10 +4,10 @@ import 'beranda_screen.dart';
 import 'explore_screen.dart';
 import 'progress_screen.dart';
 import 'profile_screen.dart';
+import 'feature_hub_screen.dart';
 
-/// Menyatukan Beranda, Explore, Progress, Profile dalam satu shell
-/// dengan bottom navigation. Index 2 (EduAI) sementara diarahkan
-/// ke Beranda karena belum ada wireframe-nya — gampang diganti nanti.
+/// Menyatukan Beranda, Explore, EduAI Hub, Progress, Profile dalam satu
+/// shell dengan bottom navigation.
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
@@ -21,7 +21,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const _screens = [
     BerandaScreen(),
     ExploreScreen(),
-    BerandaScreen(), // placeholder untuk EduAI
+    FeatureHubScreen(),
     ProgressScreen(),
     ProfileScreen(),
   ];
