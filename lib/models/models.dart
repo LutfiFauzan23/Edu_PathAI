@@ -69,3 +69,15 @@ class RecommendationItem {
     required this.ctaLabel,
   });
 }
+
+class StatistikItem {
+  final String label;
+  final String value;
+  const StatistikItem({required this.label, required this.value});
+}
+
+class ActivityItem {
+  final String title;
+  final String subtitle;
+  const ActivityItem({required this.title, required this.subtitle});
+}

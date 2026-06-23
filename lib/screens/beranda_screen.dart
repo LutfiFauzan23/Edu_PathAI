@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../widgets/app_top_bar.dart';
 import '../data/dummy_data.dart';
-import '../models/models.dart';
+import '../data/feature_dummy_data.dart';
+import 'features/snbp_snbt_screen.dart';
+import 'features/scholarship_screen.dart';
+import 'features/ai_assistant_screen.dart';
+import 'features/assessment_screen.dart';
+import 'features/portfolio_screen.dart';
+import 'features/analytics_screen.dart';
 
 class BerandaScreen extends StatelessWidget {
   const BerandaScreen({super.key});
@@ -10,266 +15,509 @@ class BerandaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = DummyData.user;
-
     return Scaffold(
-      appBar: const AppTopBar(),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          _greetingCard(user),
-          const SizedBox(height: 16),
-          _aiInsightSection(),
-          const SizedBox(height: 20),
-          _sectionHeader('Informasi Baru', 'Lihat postingan baru dari sekolahmu'),
-          const SizedBox(height: 10),
-          _newsCard(),
-          const SizedBox(height: 20),
-          _sectionHeader('Upcoming Activity', null),
-          const SizedBox(height: 10),
-          _upcomingActivityCard(),
-          const SizedBox(height: 20),
-          _statistikSection(),
-        ],
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(0),
+          children: [
+            _buildHeader(context, user),
+            _buildAIInsight(context),
+            _buildUpcomingActivity(context),
+            _buildBeasiswaCareer(context),
+            _buildStatistikPencapaian(context),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _greetingCard(UserProfile user) {
+  Widget _buildHeader(BuildContext context, user) {
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.accentGreen,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.school, color: Colors.white),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Hallo, ${user.name}', style: AppTextStyles.subheading),
-                Text('Mau mengejar targetmu hari ini?', style: AppTextStyles.caption),
-                const SizedBox(height: 6),
-                Text('Target Sekolah: ${user.targetSchool}', style: AppTextStyles.caption),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Progress Keseluruhan', style: AppTextStyles.caption),
-              Text(
-                '${user.progressPercent}%',
-                style: AppTextStyles.subheading.copyWith(color: AppColors.primary),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _aiInsightSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.auto_awesome, size: 16, color: AppColors.primary),
-            const SizedBox(width: 6),
-            Text('AI Insight', style: AppTextStyles.subheading),
-          ],
-        ),
-        Text(
-          'Berdasarkan progress belajarmu minggu ini, kami merekomendasikan',
-          style: AppTextStyles.caption,
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 96,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: DummyData.beliefMenu.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final item = DummyData.beliefMenu[index];
-              return _menuMiniCard(item);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _menuMiniCard(MenuItem item) {
-    return Container(
-      width: 90,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.menu_book_outlined, size: 16, color: AppColors.primary),
-          ),
-          const Spacer(),
-          Text(
-            item.title,
-            style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary, fontSize: 10),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String title, String? subtitle) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: AppTextStyles.subheading),
-            if (subtitle != null) Text(subtitle, style: AppTextStyles.caption),
-          ],
-        ),
-        Text(
-          'Lihat semua >',
-          style: AppTextStyles.caption.copyWith(color: AppColors.primary),
-        ),
-      ],
-    );
-  }
-
-  Widget _newsCard() {
-    final news = DummyData.newsList.first;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const CircleAvatar(radius: 14, backgroundColor: AppColors.primaryLight),
-              const SizedBox(width: 8),
-              Text(news.source, style: AppTextStyles.subheading.copyWith(fontSize: 13)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Halo, ${user.name} 👋',
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text('Siap mencapai targetmu hari ini?',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: const CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white24,
+                    child: Icon(Icons.person, color: Colors.white, size: 20)),
+              ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           Container(
-            height: 110,
-            width: double.infinity,
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(10),
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(
-              child: Icon(Icons.image_outlined, size: 36, color: AppColors.textSecondary),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.school_outlined, color: Colors.white, size: 14),
+                    const SizedBox(width: 6),
+                    Text('Target Sekolah',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11)),
+                    const Spacer(),
+                    Text(user.targetSchool,
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.trending_up, color: Colors.white, size: 14),
+                    const SizedBox(width: 6),
+                    Text('Progress Keseluruhan',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11)),
+                    const Spacer(),
+                    Text('${user.progressPercent}%',
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: user.progressPercent / 100,
+                    minHeight: 5,
+                    backgroundColor: Colors.white24,
+                    valueColor: const AlwaysStoppedAnimation(Colors.white),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(news.title, style: AppTextStyles.body.copyWith(color: AppColors.textPrimary)),
         ],
       ),
     );
   }
 
-  Widget _upcomingActivityCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
+  Widget _buildAIInsight(BuildContext context) {
+    final items = DummyData.beliefMenu;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
-        children: DummyData.upcomingActivity
-            .map((task) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 16, color: AppColors.primary),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(task.label, style: AppTextStyles.subheading.copyWith(fontSize: 13)),
-                            Text(task.value, style: AppTextStyles.caption),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ))
-            .toList(),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                    color: AppColors.primaryLight, borderRadius: BorderRadius.circular(6)),
+                child: const Icon(Icons.auto_awesome, size: 14, color: AppColors.primary),
+              ),
+              const SizedBox(width: 6),
+              const Text('AI Insight',
+                  style: TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const AssessmentScreen())),
+                child: Text('Lihat semua >',
+                    style: TextStyle(
+                        fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text('Berdasarkan analisis progress belajarmu minggu ini, aku merekomendasikan:',
+              style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 76,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, i) => _insightCard(context, items[i]),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _statistikSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Statistik', style: AppTextStyles.subheading),
-        const SizedBox(height: 10),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: DummyData.statistik.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 2.4,
-          ),
-          itemBuilder: (context, index) {
-            final stat = DummyData.statistik[index];
-            return Container(
-              padding: const EdgeInsets.all(12),
+  Widget _insightCard(BuildContext context, item) {
+    final icons = {
+      'book': Icons.menu_book_outlined,
+      'quiz': Icons.quiz_outlined,
+      'code': Icons.code,
+      'scholarship': Icons.card_giftcard_outlined,
+    };
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const AiAssistantScreen())),
+      child: Container(
+        width: 130,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
+                  color: AppColors.primaryLight, borderRadius: BorderRadius.circular(8)),
+              child: Icon(icons[item.iconName] ?? Icons.book, size: 14, color: AppColors.primary),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(stat.value, style: AppTextStyles.subheading.copyWith(color: AppColors.primary)),
-                  Text(stat.label, style: AppTextStyles.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(item.title,
+                      style: const TextStyle(
+                          fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 3),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: item.progress,
+                      minHeight: 3,
+                      backgroundColor: AppColors.border,
+                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                    ),
+                  ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingActivity(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionHeader('Upcoming Activity', onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const SnbpSnbtScreen()))),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _activityCard(
+                  context,
+                  icon: Icons.assignment_outlined,
+                  color: const Color(0xFFE8F5E9),
+                  iconColor: AppColors.success,
+                  title: 'Tryout SNBT',
+                  lines: ['Waktu: 08:00 - 9:45', 'Deadline: Jum, 25 Juni 2026',
+                    'Target Skor: 750'],
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const SnbpSnbtScreen())),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _activityCard(
+                  context,
+                  icon: Icons.book_outlined,
+                  color: AppColors.primaryLight,
+                  iconColor: AppColors.primary,
+                  title: 'Tugas Matematika',
+                  lines: ['Deadline: Min, 23 Juni 2026', 'Materi: Turunan Fungsi'],
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const SnbpSnbtScreen())),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _activityCard(BuildContext context,
+      {required IconData icon,
+      required Color color,
+      required Color iconColor,
+      required String title,
+      required List<String> lines,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+              child: Icon(icon, size: 14, color: iconColor),
+            ),
+            const SizedBox(height: 8),
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+            const SizedBox(height: 4),
+            ...lines.map((l) => Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(l,
+                      style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBeasiswaCareer(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _bigActionCard(
+              context,
+              icon: Icons.card_giftcard_outlined,
+              gradient: const LinearGradient(
+                  colors: [Color(0xFF1B5E3A), Color(0xFF2BB673)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
+              title: 'Beasiswa\nDibimbing ID',
+              subtitle: '25 Juni 2026\nInfo Lengkap',
+              chips: ['Dalam Negeri', '2 Proyek', '0 Protokol', '2t Rekap Nilai Rapor'],
+              onTap: () => Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => const ScholarshipScreen())),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _bigActionCard(
+              context,
+              icon: Icons.work_outline,
+              gradient: const LinearGradient(
+                  colors: [Color(0xFF6C2BD9), Color(0xFF9B6DFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
+              title: 'Career\nCoaching AI',
+              subtitle: 'Persiapan Jurusan\nInformatika',
+              chips: ['Topik', 'Dosen', 'Target Jurusan Informatika', 'Target Masuk 70%'],
+              onTap: () => Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => const AiAssistantScreen())),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bigActionCard(BuildContext context,
+      {required IconData icon,
+      required Gradient gradient,
+      required String title,
+      required String subtitle,
+      required List<String> chips,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(gradient: gradient, borderRadius: BorderRadius.circular(14)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(height: 8),
+            Text(title,
+                style: const TextStyle(
+                    color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(subtitle,
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 10)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: chips
+                  .map((c) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(c,
+                            style: const TextStyle(color: Colors.white, fontSize: 9)),
+                      ))
+                  .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatistikPencapaian(BuildContext context) {
+    final stats = DummyData.statistik;
+    final pencapaian = DummyData.upcomingActivity;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader('Statistik',
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const AnalyticsScreen()))),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        children: stats
+                            .map((s) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.circle,
+                                          size: 6, color: AppColors.primary),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                          child: Text(s.label,
+                                              style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: AppColors.textPrimary))),
+                                      Text(s.value,
+                                          style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.primary)),
+                                    ],
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeader('Pencapaian',
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const PortfolioScreen()))),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _pencapaianRow(Icons.folder_outlined, '3 Sertifikat'),
+                          _pencapaianRow(Icons.code, '2 Proyek'),
+                          _pencapaianRow(Icons.groups_outlined, '3 Organisasi'),
+                          const Divider(height: 10),
+                          Text('Top Skills: Web Development',
+                              style: const TextStyle(
+                                  fontSize: 9, color: AppColors.textSecondary)),
+                          Text('Target Jurusan Informatika',
+                              style: const TextStyle(
+                                  fontSize: 9, color: AppColors.textSecondary)),
+                          Text('Target Masuk 70%',
+                              style: const TextStyle(
+                                  fontSize: 9, color: AppColors.primary,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pencapaianRow(IconData icon, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Row(
+        children: [
+          Icon(icon, size: 12, color: AppColors.primary),
+          const SizedBox(width: 5),
+          Text(label,
+              style: const TextStyle(fontSize: 10, color: AppColors.textPrimary)),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String title, {required VoidCallback onTap}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+        GestureDetector(
+          onTap: onTap,
+          child: Text('lihat semua >',
+              style: const TextStyle(fontSize: 10, color: AppColors.primary)),
         ),
       ],
     );

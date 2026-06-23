@@ -1,201 +1,338 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../widgets/app_top_bar.dart';
+import '../data/dummy_data.dart';
+import 'features/school_catalog_screen.dart';
+import 'features/snbp_snbt_screen.dart';
+import 'features/scholarship_screen.dart';
+import 'features/forum_screen.dart';
+import 'features/ai_assistant_screen.dart';
+import 'features/career_explore_screen.dart';
 
-class ExploreScreen extends StatelessWidget {
+class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
 
   @override
+  State<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends State<ExploreScreen> {
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  static const _quickAccess = [
+    {'icon': Icons.calculate_outlined, 'label': 'SNBT', 'route': 'snbt'},
+    {'icon': Icons.library_books_outlined, 'label': 'Bank Soal', 'route': 'banksoal'},
+    {'icon': Icons.bookmark_outline, 'label': 'Tersimpan', 'route': 'saved'},
+    {'icon': Icons.school_outlined, 'label': 'Kampus', 'route': 'kampus'},
+    {'icon': Icons.card_giftcard_outlined, 'label': 'Beasiswa', 'route': 'beasiswa'},
+    {'icon': Icons.work_outline, 'label': 'Karier', 'route': 'karier'},
+    {'icon': Icons.forum_outlined, 'label': 'Forum', 'route': 'forum'},
+    {'icon': Icons.person_outline, 'label': 'Mentor', 'route': 'mentor'},
+  ];
+
+  void _handleQuickAccess(String route) {
+    final Widget dest = switch (route) {
+      'snbt' => const SnbpSnbtScreen(),
+      'banksoal' => const SnbpSnbtScreen(),
+      'kampus' => const SchoolCatalogScreen(),
+      'beasiswa' => const ScholarshipScreen(),
+      'karier' => const CareerExploreScreen(),
+      'forum' => const ForumScreen(),
+      'mentor' => const ForumScreen(),
+      _ => const SchoolCatalogScreen(),
+    };
+    Navigator.push(context, MaterialPageRoute(builder: (_) => dest));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final news = DummyData.newsList;
     return Scaffold(
-      appBar: const AppTopBar(),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          Text('Explore', style: AppTextStyles.heading),
-          const SizedBox(height: 4),
-          Text('Cari kabar baru dari sekolah impianmu', style: AppTextStyles.caption),
-          const SizedBox(height: 16),
-          _searchBar(),
-          const SizedBox(height: 20),
-          _quickAccessCard(),
-          const SizedBox(height: 20),
-          _sectionHeader('Informasi Baru', 'Lihat postingan baru dari sekolahmu'),
-          const SizedBox(height: 10),
-          _schoolPostCard(),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Text(
-              'SMKN 1 menempelkan postingan baru',
-              style: AppTextStyles.caption,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Text(
-              'selengkapnya >',
-              style: AppTextStyles.caption.copyWith(color: AppColors.primary),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _searchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.search, size: 18, color: AppColors.textSecondary),
-          const SizedBox(width: 10),
-          Text('Cari sekolah, jurusan, atau berita...', style: AppTextStyles.caption),
-        ],
-      ),
-    );
-  }
-
-  Widget _quickAccessCard() {
-    final items = [
-      (Icons.image_outlined, 'Galeri'),
-      (Icons.apps, 'Kategori'),
-      (Icons.menu_book_outlined, 'Materi'),
-      (Icons.bar_chart, 'Statistik'),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.landscape_outlined, size: 32, color: AppColors.textSecondary),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text('Quick Access', style: AppTextStyles.subheading.copyWith(fontSize: 13)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: items
-                          .map((e) => Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryLight,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(e.$1, size: 18, color: AppColors.primary),
-                              ))
-                          .toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                4,
-                (i) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: i == 0 ? AppColors.primary : AppColors.border,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String title, String subtitle) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(0),
           children: [
-            Text(title, style: AppTextStyles.subheading),
-            Text(subtitle, style: AppTextStyles.caption),
+            _buildTopBar(),
+            _buildSearchBar(),
+            _buildQuickAccess(),
+            _buildInformasiBaru(news),
+            _buildPostinganSekolah(),
+            const SizedBox(height: 24),
           ],
         ),
-        Text('Lihat semua >', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
-      ],
+      ),
     );
   }
 
-  Widget _schoolPostCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+  Widget _buildTopBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Explore',
+              style: TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.search, color: AppColors.textPrimary),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: GestureDetector(
+        onTap: () {},
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search, size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: 10),
+              Text('Cari kabar baru dari sekolah impianmu!',
+                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAccess() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Quick Access',
+              style: TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _quickAccess.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 0.85,
+            ),
+            itemBuilder: (context, i) {
+              final item = _quickAccess[i];
+              return GestureDetector(
+                onTap: () => _handleQuickAccess(item['route'] as String),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(item['icon'] as IconData,
+                          size: 22, color: AppColors.primary),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(item['label'] as String,
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary)),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInformasiBaru(List news) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const CircleAvatar(radius: 14, backgroundColor: AppColors.primaryLight),
-              const SizedBox(width: 8),
-              Text('SMKN 1', style: AppTextStyles.subheading.copyWith(fontSize: 13)),
-              const SizedBox(width: 8),
-              Text('Latihan', style: AppTextStyles.caption),
+              const Text('Informasi Baru',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary)),
+              GestureDetector(
+                onTap: () {},
+                child: Text('lihat semua >',
+                    style: const TextStyle(fontSize: 10, color: AppColors.primary)),
+              ),
             ],
           ),
           const SizedBox(height: 10),
-          Container(
-            height: 140,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Center(
-              child: Icon(Icons.image_outlined, size: 36, color: AppColors.textSecondary),
-            ),
-          ),
+          ...news.map((n) => _newsCard(n)),
         ],
+      ),
+    );
+  }
+
+  Widget _newsCard(n) {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.article_outlined, size: 20, color: AppColors.primary),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(n.source,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  Text(n.title,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Text(n.timeAgo,
+                      style: const TextStyle(
+                          fontSize: 10, color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostinganSekolah() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Postingan Sekolah',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary)),
+              GestureDetector(
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const SchoolCatalogScreen())),
+                child: Text('selengkapnya >',
+                    style: const TextStyle(fontSize: 10, color: AppColors.primary)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _schoolPostCard(
+              school: 'SMKN 1', action: 'Latihan', subtitle: 'SMKN 1 Telah memposting'),
+          _schoolPostCard(
+              school: 'SMKN 1', action: 'Pertemuan', subtitle: 'SMKN 1 mengadakan pertemuan'),
+        ],
+      ),
+    );
+  }
+
+  Widget _schoolPostCard({required String school, required String action, required String subtitle}) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const SchoolCatalogScreen())),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 90,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              child: const Center(
+                child: Icon(Icons.image_outlined, size: 32, color: AppColors.textSecondary),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(subtitle,
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
