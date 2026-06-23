@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../data/dummy_data.dart';
-import '../data/feature_dummy_data.dart';
+// import '../data/feature_dummy_data.dart';
 import 'features/snbp_snbt_screen.dart';
 import 'features/scholarship_screen.dart';
 import 'features/ai_assistant_screen.dart';

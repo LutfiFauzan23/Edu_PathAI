@@ -1,116 +1,78 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'api_service.dart'; // Import ApiService yang baru dibuat
+import 'firestore_service.dart'; // Import FirestoreService jika ingin tetap simpan ganda
 
-// /// Service untuk semua proses autentikasi (Email/Password, Google, Facebook).
-// ///
-// /// PENTING soal Google Sign-In v7+:
-// /// Sejak google_sign_in versi 7, API berubah total dari versi lama:
-// ///   - `GoogleSignIn()` (constructor) -> `GoogleSignIn.instance` (singleton)
-// ///   - `.signIn()` -> `.authenticate()`
-// ///   - `googleUser.authentication` (dulu Future) -> sekarang getter biasa (sync)
-// /// Class ini sudah pakai API yang baru. `initialize()` WAJIB dipanggil
-// /// sekali sebelum `authenticate()` dipanggil pertama kali — sudah
-// /// ditangani otomatis lewat `_ensureGoogleInitialized()`.
-// class AuthService {
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-//   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final FirestoreService _firestoreService = FirestoreService();
 
-//   bool _googleInitialized = false;
+  // ... (biarkan _ensureGoogleInitialized dan getter lainnya tetap sama) ...
 
-//   /// Pastikan GoogleSignIn.instance sudah di-initialize sebelum dipakai.
-//   /// Aman dipanggil berkali-kali (idempotent).
-//   Future<void> _ensureGoogleInitialized() async {
-//     if (_googleInitialized) return;
-//     await _googleSignIn.initialize(
-//       // TODO (opsional): isi serverClientId jika butuh akses token untuk
-//       // backend custom di luar Firebase. Untuk login Firebase biasa,
-//       // tidak wajib diisi.
-//       // serverClientId: 'GANTI_DENGAN_WEB_CLIENT_ID.apps.googleusercontent.com',
-//     );
-//     _googleInitialized = true;
-//   }
+  /// Registrasi dengan email & password.
+  Future<UserCredential> registerWithEmail({
+    required String name, // Tambahkan parameter name
+    required String email,
+    required String password,
+  }) async {
+    UserCredential credential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-//   Stream<User?> get authStateChanges => _auth.authStateChanges();
+    User? user = credential.user;
+    if (user != null) {
+      // Update display name di Firebase Auth
+      await user.updateDisplayName(name);
+      
+      // Sinkronisasi ke Firestore (opsional jika masih dipakai)
+      await _firestoreService.createUser(user);
 
-//   User? get currentUser => _auth.currentUser;
+      // Sinkronisasi ke MySQL
+      await ApiService.syncUserToMysql(
+        uid: user.uid,
+        name: name,
+        email: user.email!,
+        provider: 'email',
+      );
+    }
+    return credential;
+  }
 
-//   /// Login / registrasi dengan email & password.
-//   Future<UserCredential> signInWithEmail({
-//     required String email,
-//     required String password,
-//   }) {
-//     return _auth.signInWithEmailAndPassword(
-//       email: email,
-//       password: password,
-//     );
-//   }
+  /// Login dengan akun Google.
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      await _ensureGoogleInitialized();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      if (googleUser == null) return null;
 
-//   Future<UserCredential> registerWithEmail({
-//     required String email,
-//     required String password,
-//   }) {
-//     return _auth.createUserWithEmailAndPassword(
-//       email: email,
-//       password: password,
-//     );
-//   }
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
 
-//   /// Login dengan akun Google. Mengembalikan null jika user
-//   /// membatalkan proses sign-in.
-//   Future<UserCredential?> signInWithGoogle() async {
-//     try {
-//       await _ensureGoogleInitialized();
+      UserCredential userCredential = await _auth.signInWithCredential(credential);
+      User? user = userCredential.user;
 
-//       final GoogleSignInAccount googleUser =
-//           await _googleSignIn.authenticate();
+      if (user != null) {
+        // Sinkronisasi ke Firestore
+        await _firestoreService.createUser(user);
 
-//       // Di v7, `.authentication` sudah synchronous (bukan Future lagi)
-//       // dan hanya berisi idToken (access token diambil terpisah lewat
-//       // authorizationClient kalau dibutuhkan scope tambahan).
-//       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+        // Sinkronisasi ke MySQL
+        await ApiService.syncUserToMysql(
+          uid: user.uid,
+          name: user.displayName ?? 'Google User',
+          email: user.email ?? '',
+          photoUrl: user.photoURL,
+          provider: 'google',
+        );
+      }
+      return userCredential;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return null;
+      rethrow;
+    }
+  }
 
-//       final credential = GoogleAuthProvider.credential(
-//         idToken: googleAuth.idToken,
-//       );
-
-//       return await _auth.signInWithCredential(credential);
-//     } on GoogleSignInException catch (e) {
-//       // Termasuk kasus user membatalkan dialog sign-in.
-//       if (e.code == GoogleSignInExceptionCode.canceled) {
-//         return null;
-//       }
-//       rethrow;
-//     }
-//   }
-
-//   /// Login dengan akun Facebook. Mengembalikan null jika user
-//   /// membatalkan proses sign-in.
-//   Future<UserCredential?> signInWithFacebook() async {
-//     final LoginResult result = await FacebookAuth.instance.login(
-//       permissions: const ['email', 'public_profile'],
-//     );
-
-//     if (result.status != LoginStatus.success || result.accessToken == null) {
-//       return null;
-//     }
-
-//     final credential = FacebookAuthProvider.credential(
-//       result.accessToken!.tokenString,
-//     );
-
-//     return await _auth.signInWithCredential(credential);
-//   }
-
-//   Future<void> sendPasswordResetEmail(String email) {
-//     return _auth.sendPasswordResetEmail(email: email);
-//   }
-
-//   Future<void> signOut() async {
-//     await Future.wait([
-//       _auth.signOut(),
-//       _googleSignIn.signOut(),
-//       FacebookAuth.instance.logOut(),
-//     ]);
-//   }
-// }
+  // Lakukan hal yang sama untuk signInWithFacebook() dengan mengubah parameternya menjadi provider: 'facebook'.
+}
