@@ -1,11 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'main_navigation.dart';
-import 'register_screen.dart';
-import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
 
+/// Login screen — dummy lokal, tidak butuh Firebase atau internet.
+/// Email & password apapun bisa dipakai asal tidak kosong dan
+/// password minimal 6 karakter.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -14,121 +13,33 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _authService = AuthService();
-  final _firestoreService = FirestoreService();
+  final _formKey   = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl  = TextEditingController();
 
-  bool _obscurePassword = true;
-  bool _isLoading = false;
-  String? _errorText;
+  bool _obscure  = true;
+  bool _loading  = false;
+  String? _error;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
     super.dispose();
   }
 
-  void _goToMainNavigation() {
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MainNavigation()),
-    );
-  }
-
-  Future<void> _handleLogin() async {
+  void _login() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorText = null;
-    });
+    setState(() { _loading = true; _error = null; });
 
-    try {
-      await _authService.signInWithEmail(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+    // Simulasi delay sebentar supaya ada feedback visual loading
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
       );
-      _goToMainNavigation();
-    } on FirebaseAuthException catch (e) {
-      setState(() => _errorText = _mapAuthError(e));
-    } catch (e) {
-      setState(() => _errorText = 'Terjadi kesalahan. Coba lagi.');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isLoading = true;
-      _errorText = null;
     });
-
-    try {
-      final credential = await _authService.signInWithGoogle();
-      if (credential == null) {
-        // User membatalkan dialog sign-in.
-        return;
-      }
-      final user = credential.user;
-      if (user != null) {
-        await _firestoreService.createUser(user);
-      }
-      _goToMainNavigation();
-    } on FirebaseAuthException catch (e) {
-      setState(() => _errorText = _mapAuthError(e));
-    } catch (e) {
-      setState(() => _errorText = 'Login Google gagal. Coba lagi.');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleFacebookSignIn() async {
-    setState(() {
-      _isLoading = true;
-      _errorText = null;
-    });
-
-    try {
-      final credential = await _authService.signInWithFacebook();
-      if (credential == null) {
-        // User membatalkan dialog sign-in.
-        return;
-      }
-      final user = credential.user;
-      if (user != null) {
-        await _firestoreService.createUser(user);
-      }
-      _goToMainNavigation();
-    } on FirebaseAuthException catch (e) {
-      setState(() => _errorText = _mapAuthError(e));
-    } catch (e) {
-      setState(() => _errorText = 'Login Facebook gagal. Coba lagi.');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  String _mapAuthError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return 'Akun tidak ditemukan.';
-      case 'wrong-password':
-      case 'invalid-credential':
-        return 'Email atau password salah.';
-      case 'invalid-email':
-        return 'Format email tidak valid.';
-      case 'user-disabled':
-        return 'Akun ini telah dinonaktifkan.';
-      case 'account-exists-with-different-credential':
-        return 'Email ini sudah terdaftar lewat metode login lain.';
-      default:
-        return e.message ?? 'Login gagal. Coba lagi.';
-    }
   }
 
   @override
@@ -156,96 +67,105 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Login', style: AppTextStyles.heading),
-                  const SizedBox(height: 24),
+                  // ---- Logo / judul ----
+                  const Icon(Icons.school_rounded, size: 48, color: AppColors.primary),
+                  const SizedBox(height: 8),
+                  Text('EduPath AI', style: AppTextStyles.heading),
+                  const SizedBox(height: 4),
+                  Text('Masuk untuk mulai', style: AppTextStyles.caption),
+                  const SizedBox(height: 28),
 
-                  _buildLabel('Email'),
-                  _buildEmailField(),
-                  const SizedBox(height: 16),
+                  // ---- Email ----
+                  _label('Email'),
+                  TextFormField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+                    decoration: _deco(),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return 'Email wajib diisi';
+                      if (!v.contains('@')) return 'Format email tidak valid';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 14),
 
-                  _buildLabel('Password'),
-                  _buildPasswordField(),
-
-                  if (_errorText != null) ...[
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        _errorText!,
-                        style: AppTextStyles.caption.copyWith(color: Colors.red),
+                  // ---- Password ----
+                  _label('Password'),
+                  TextFormField(
+                    controller: _passCtrl,
+                    obscureText: _obscure,
+                    style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+                    decoration: _deco(
+                      suffix: IconButton(
+                        icon: Icon(
+                          _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                     ),
-                  ],
-
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _isLoading ? null : _handleForgotPassword,
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      child: Text('Forgot password?', style: AppTextStyles.caption),
-                    ),
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return 'Password wajib diisi';
+                      if (v.length < 6) return 'Minimal 6 karakter';
+                      return null;
+                    },
                   ),
-                  const SizedBox(height: 8),
 
+                  // ---- Error ----
+                  if (_error != null) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(_error!, style: AppTextStyles.caption.copyWith(color: Colors.red)),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+
+                  // ---- Tombol masuk ----
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleLogin,
+                      onPressed: _loading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: _isLoading
+                      child: _loading
                           ? const SizedBox(
-                              width: 18,
-                              height: 18,
+                              width: 18, height: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation(Colors.white),
                               ),
                             )
-                          : Text('Submit', style: AppTextStyles.button),
+                          : Text('Masuk', style: AppTextStyles.button),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  Text('Or Sign Up Using', style: AppTextStyles.caption),
-                  const SizedBox(height: 10),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _socialIconButton(
-                        Icons.g_mobiledata,
-                        onTap: _isLoading ? null : _handleGoogleSignIn,
-                      ),
-                      const SizedBox(width: 16),
-                      _socialIconButton(
-                        Icons.facebook,
-                        onTap: _isLoading ? null : _handleFacebookSignIn,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Belum punya akun?  ", style: AppTextStyles.caption),
-                      GestureDetector(
-                        onTap: _isLoading ? null : _handleGoToRegister,
-                        child: Text(
-                          'Sign Up',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  // ---- Hint kredensial ----
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('💡 Mode Demo', style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.w700, color: AppColors.primary)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Masukkan email apapun (pakai @) dan password minimal 6 karakter untuk langsung masuk.',
+                          style: AppTextStyles.caption,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -256,109 +176,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _handleGoToRegister() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RegisterScreen()),
-    );
-  }
-
-  Future<void> _handleForgotPassword() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
-      setState(() => _errorText = 'Masukkan email dulu untuk reset password.');
-      return;
-    }
-    try {
-      await _authService.sendPasswordResetEmail(email);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Link reset password dikirim ke $email')),
+  Widget _label(String text) => Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(text, style: AppTextStyles.caption),
+        ),
       );
-    } on FirebaseAuthException catch (e) {
-      setState(() => _errorText = _mapAuthError(e));
-    }
-  }
 
-  Widget _buildLabel(String text) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Text(text, style: AppTextStyles.caption),
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-      decoration: _fieldDecoration(),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) return 'Email wajib diisi';
-        if (!value.contains('@')) return 'Format email tidak valid';
-        return null;
-      },
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
-      decoration: _fieldDecoration(
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-            size: 18,
-            color: AppColors.textSecondary,
-          ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+  InputDecoration _deco({Widget? suffix}) => InputDecoration(
+        filled: true,
+        fillColor: AppColors.background,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
         ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Password wajib diisi';
-        if (value.length < 6) return 'Minimal 6 karakter';
-        return null;
-      },
-    );
-  }
-
-  InputDecoration _fieldDecoration({Widget? suffixIcon}) {
-    return InputDecoration(
-      filled: true,
-      fillColor: AppColors.background,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red, width: 1),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red, width: 1),
-      ),
-      suffixIcon: suffixIcon,
-    );
-  }
-
-  Widget _socialIconButton(IconData icon, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
         ),
-        child: Icon(icon, size: 20, color: AppColors.textPrimary),
-      ),
-    );
-  }
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
+        ),
+        suffixIcon: suffix,
+      );
 }

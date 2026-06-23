@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
 
 /// Semua warna, spasi, dan style teks dipusatkan di sini supaya
 /// tampilan tiap layar konsisten dan gampang diubah dari satu tempat.

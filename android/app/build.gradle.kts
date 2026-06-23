@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.edupath"
+    namespace = "com.example.edu_path"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

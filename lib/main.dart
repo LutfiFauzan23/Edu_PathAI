@@ -1,28 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  runApp(const SnbpApp());
+void main() {
+  runApp(const EduPathApp());
 }
 
-class SnbpApp extends StatelessWidget {
-  const SnbpApp({super.key});
+class EduPathApp extends StatelessWidget {
+  const EduPathApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "EduPath AI",
+      title: 'EduPath AI',
       theme: buildAppTheme(),
       home: const LoginScreen(),
     );

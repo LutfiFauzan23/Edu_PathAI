@@ -29,13 +29,6 @@
             {
               "client_id": "808588462143-kq0iic4sncrnodm0dj59911u59nb5393.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "808588462143-br9ib54ifksg7d3eu0rt09g2i3qiggck.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.eduPath"
-              }
             }
           ]
         }
